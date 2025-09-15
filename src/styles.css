@@ -1,0 +1,35 @@
+body {
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  font-family: monospace;
+}
+
+.board {
+  border: 2px solid #ff9d00;
+  padding: 20px;
+  display: inline-block;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  padding: 4px 32px; /* increased padding: vertical 8px, horizontal 16px */
+  text-align: left;
+}
+
+th {
+    color: lightgray;
+    font-size: 1rem;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: lighter;
+}
+
+td {
+    color: #ff9d00;
+    font-size: 1.5rem;
+}
