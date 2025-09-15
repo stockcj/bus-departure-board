@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import './styles.css';
 
 function App() {
@@ -7,7 +6,7 @@ function App() {
 
   const fetchDepartures = async () => {
     try {
-      const res = await fetch('/api/departures');
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/departure`);
       const data = await res.json();
       setDepartures(data);
     } catch (err) {
