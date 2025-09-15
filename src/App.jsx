@@ -6,7 +6,7 @@ function App() {
 
   const fetchDepartures = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/departure`);
+      const res = await fetch('api/departure');
       const data = await res.json();
       setDepartures(data);
     } catch (err) {
