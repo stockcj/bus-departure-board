@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       const time = row.querySelector('.gridTimeItem')?.textContent.trim() || '';
       return { service, destination, time };
     });
-
+    console.log(departures);
     res.status(200).json(departures);
   } catch (err) {
     console.error(err);
