@@ -8,12 +8,19 @@ const redisClient = createClient({
 });
 
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
-await redisClient.connect();
+
+async function ensureRedisConnected() {
+  if (!redisClient.isOpen) {
+    await redisClient.connect();
+  }
+}
 
 export default async function handler(req, res) {
   try {
 
-    const cached = await redisClient.get(departures);
+    await ensureRedisConnected();
+
+    const cached = await redisClient.get("departures");
     const now = Date.now();
 
     if (cached) {
@@ -39,14 +46,16 @@ export default async function handler(req, res) {
       const service = row.querySelector('.gridServiceItem')?.textContent.trim() || '';
       const destination = row.querySelector('.gridDestinationItem span')?.textContent.trim() || '';
       const time = row.querySelector('.gridTimeItem')?.textContent.trim() || '';
+      return {service, destination, time};
     });
+
+    console.log(departures);
 
     await redisClient.set(
         "departures",
         JSON.stringify({ data: departures, timestamp: now })
     )
 
-    console.log(departures);
     res.status(200).json(departures);
   } catch (err) {
     console.error(err);
