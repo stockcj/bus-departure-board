@@ -7,9 +7,12 @@ body {
 }
 
 .board-container {
-    width: fit-content;
+    width: 100%;
+    max-width: 550px;
     margin: auto;
     text-align: center;
+    padding: 0 1rem;
+    box-sizing: border-box;
 }
 
 .loading-animation {
@@ -17,6 +20,7 @@ body {
   font-weight: lighter;
   font-size: 1.2rem;
   color: #ff9d00;
+  margin: 2rem 0;
 }
 
 .dots span {
@@ -44,19 +48,23 @@ body {
 }
 
 .board {
-  border: 2px solid #ff9d00;
-  padding: 20px;
-  display: inline-block;
+	margin-top: 1rem;
+	width: 100%;
+	border: 2px solid #ff9d00;
+	display: inline-block;
 }
 
 table {
   border-collapse: collapse;
   width: 100%;
+	table-layout: fixed;
 }
 
 th, td {
-  padding: 4px 32px; /* increased padding: vertical 8px, horizontal 16px */
-  text-align: left;
+  padding: 0.5rem 0.8rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 th {
@@ -64,9 +72,57 @@ th {
     font-size: 1rem;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: lighter;
+		text-align: center;
 }
 
 td {
     color: #ff9d00;
     font-size: 1.5rem;
+		text-align: left;
+}
+
+/* Fix first and last columns */
+.board th:first-child,
+.board td:first-child {
+  width: 55px;
+}
+
+.board th:last-child,
+.board td:last-child {
+  width: 120px; /* adjust as needed */
+}
+
+.board td:nth-child(2) {
+  text-align: center;
+}
+
+.board td:last-child {
+  text-align: right;
+}
+
+.no-data {
+	margin-top: 1rem;
+	font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .board th,
+  .board td {
+    font-size: 0.8rem;  /* shrink font size */
+    padding: 0.3rem 0.5rem; /* optional: reduce padding */
+  }
+
+	.board th:first-child,
+	.board td:first-child {
+  	width: auto;
+	}
+
+	.board th:last-child,
+	.board td:last-child {
+  	width: auto; /* adjust as needed */
+	}
+
+  .loading-animation {
+    font-size: 1rem; /* adjust loader text */
+  }
 }
