@@ -57,7 +57,15 @@ function App() {
       )}
 
       {!loading && departures.length === 0 && (
-        <div className="no-data">No departures available.</div>
+        <div className="board">
+          <table>
+            <thead>
+              <tr>
+                <th>No departures available.</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
       )}
     </div>
   );
