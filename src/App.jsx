@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './styles.css';
-
-const STOPS = [
-  { id: '0500SCOMB004', name: 'Comberton - South Street' },
-  { id: '0500CCITY119', name: 'Cambridge - Drummer Street Bay 3' },
-  { id: '0500CCITY208', name: 'Cambridge - Catholic Church' }
-];
+import { STOPS } from './stops.js';
 
 function App() {
   const [departures, setDepartures] = useState([]);
@@ -35,29 +30,20 @@ function App() {
   return (
     <div className="board-container">
 
-      <div className="stop-selector" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
-        {STOPS.map(stop => (
-          <button
-            key={stop.id}
-            onClick={() => {
-              setSelectedStopId(stop.id);
-              setLoading(true);
-            }}
-            style={{
-              padding: '0.5rem 1.2rem',
-              borderRadius: '20px',
-              border: stop.id === selectedStopId ? '2px solid #ff9d00' : '1px solid #444',
-              background: stop.id === selectedStopId ? '#222' : '#111',
-              color: stop.id === selectedStopId ? '#ff9d00' : 'lightgray',
-              fontWeight: stop.id === selectedStopId ? 'bold' : 'normal',
-              cursor: 'pointer',
-              outline: 'none',
-              transition: 'all 0.2s'
-            }}
-          >
-            {stop.name}
-          </button>
-        ))}
+      <div className="stop-selector">
+        <label className="visually-hidden" htmlFor="stop-select">Choose a stop</label>
+        <select
+          id="stop-select"
+          value={selectedStopId}
+          onChange={(e) => {
+            setSelectedStopId(e.target.value);
+            setLoading(true);
+          }}
+        >
+          {STOPS.map(stop => (
+            <option key={stop.id} value={stop.id}>{stop.name}</option>
+          ))}
+        </select>
       </div>
 
       {loading && (
