@@ -1,5 +1,7 @@
 # Bus Departure Board
 
+[![CI](https://github.com/stockcj/bus-departure-board/actions/workflows/ci.yml/badge.svg)](https://github.com/stockcj/bus-departure-board/actions/workflows/ci.yml)
+
 A live departure board for a handful of Cambridgeshire bus stops. React + Vite
 front end, with a serverless function that scrapes the official
 [cambridgeshirebus.info](https://www.cambridgeshirebus.info) live-display page and
@@ -41,6 +43,7 @@ REDIS_URL=redis://127.0.0.1:6379 npm run dev
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Serve the built `dist/` |
 | `npm run lint` | ESLint |
+| `npm test` | Run the parser unit tests (`node --test`) |
 
 ## Deployment
 
