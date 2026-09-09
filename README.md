@@ -52,3 +52,7 @@ shared caching across function invocations.
 
 This depends on scraping a third-party page – if `cambridgeshirebus.info`
 changes its markup, the parser in `api/departure.js` will need updating.
+
+`/api/departure` is rate limited to 30 requests per minute per IP (fixed
+window, Redis-backed when `REDIS_URL` is set, otherwise per-instance). Over
+the limit returns `429` with a `Retry-After` header.
