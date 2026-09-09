@@ -150,11 +150,6 @@ td {
   text-align: right;
 }
 
-.no-data {
-	margin-top: 1rem;
-	font-style: italic;
-}
-
 @media (max-width: 480px) {
   .board th,
   .board td {

@@ -79,8 +79,6 @@ export default async function handler(req, res) {
 
     const responseData = { stop: stop.name, departures };
 
-    console.log(responseData);
-
     await cacheSet(
         cacheKey,
         JSON.stringify({ data: responseData, timestamp: now })
