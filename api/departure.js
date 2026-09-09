@@ -101,6 +101,24 @@ async function checkRateLimit(ip) {
   return { allowed: true };
 }
 
+// Parse the first few departure rows out of a WebDisplay page's HTML.
+// Exported (and kept free of network/cache concerns) so it can be unit tested
+// against saved fixtures - this selector logic is the most likely thing to
+// break when the upstream site changes.
+export function parseDepartures(html, limit = 5) {
+  const doc = new JSDOM(html).window.document;
+  const rows = Array.from(
+    doc.querySelectorAll('#gridViewRTI .gridRow')
+  ).slice(0, limit);
+
+  return rows.map((row) => ({
+    service: row.querySelector('.gridServiceItem')?.textContent.trim() || '',
+    destination:
+      row.querySelector('.gridDestinationItem span')?.textContent.trim() || '',
+    time: row.querySelector('.gridTimeItem')?.textContent.trim() || '',
+  }));
+}
+
 async function scrapeDepartures(stop) {
   const { data } = await axios.get(stopUrl(stop.id), {
     timeout: UPSTREAM_TIMEOUT_MS,
@@ -110,19 +128,7 @@ async function scrapeDepartures(stop) {
     },
   });
 
-  const doc = new JSDOM(data).window.document;
-
-  // Grab first 5 departures
-  const rows = Array.from(
-    doc.querySelectorAll('#gridViewRTI .gridRow')
-  ).slice(0, 5);
-
-  const departures = rows.map((row) => ({
-    service: row.querySelector('.gridServiceItem')?.textContent.trim() || '',
-    destination:
-      row.querySelector('.gridDestinationItem span')?.textContent.trim() || '',
-    time: row.querySelector('.gridTimeItem')?.textContent.trim() || '',
-  }));
+  const departures = parseDepartures(data);
 
   if (departures.length === 0) {
     console.warn(

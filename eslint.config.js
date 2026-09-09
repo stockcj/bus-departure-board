@@ -29,9 +29,9 @@ export default defineConfig([
     },
   },
 
-  // Node: serverless functions + build/config files
+  // Node: serverless functions, tests, build/config files
   {
-    files: ['api/**/*.js', '*.config.js'],
+    files: ['api/**/*.js', 'test/**/*.js', '*.config.js'],
     extends: [js.configs.recommended],
     languageOptions: {
       ecmaVersion: 'latest',
