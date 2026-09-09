@@ -11,6 +11,12 @@ const CACHE_TTL_S = 600;
 
 const UPSTREAM_TIMEOUT_MS = 8000;
 
+// Fixed-window per-IP rate limit. A normal client polls once per minute per
+// stop, so this only bites abusive traffic. Backed by Redis when configured
+// (accurate across serverless instances), otherwise an in-process map.
+const RATE_LIMIT = 30;
+const RATE_WINDOW_S = 60;
+
 // Redis is used when REDIS_URL is configured. Without it (local dev) we fall
 // back to an in-process cache, so no Redis instance is needed to run the app.
 const redisClient = process.env.REDIS_URL
@@ -55,6 +61,46 @@ async function cacheSet(key, value) {
   await redisClient.set(key, value, { EX: CACHE_TTL_S });
 }
 
+const rateBuckets = new Map(); // ip -> { count, resetAt }, memory fallback
+
+function clientIp(req) {
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) return xff.split(',')[0].trim();
+  return req.socket?.remoteAddress || 'unknown';
+}
+
+// Returns { allowed, retryAfter? }. Throws only on an unexpected backend error,
+// which the caller treats as "allow" so a limiter outage can't break the board.
+async function checkRateLimit(ip) {
+  const key = `ratelimit:${ip}`;
+
+  if (redisClient) {
+    await ensureRedisConnected();
+    const count = await redisClient.incr(key);
+    if (count === 1) await redisClient.expire(key, RATE_WINDOW_S);
+    if (count > RATE_LIMIT) {
+      const ttl = await redisClient.ttl(key);
+      return { allowed: false, retryAfter: ttl > 0 ? ttl : RATE_WINDOW_S };
+    }
+    return { allowed: true };
+  }
+
+  const now = Date.now();
+  const bucket = rateBuckets.get(ip);
+  if (!bucket || now >= bucket.resetAt) {
+    if (rateBuckets.size > 5000) {
+      for (const [k, v] of rateBuckets) if (now >= v.resetAt) rateBuckets.delete(k);
+    }
+    rateBuckets.set(ip, { count: 1, resetAt: now + RATE_WINDOW_S * 1000 });
+    return { allowed: true };
+  }
+  bucket.count += 1;
+  if (bucket.count > RATE_LIMIT) {
+    return { allowed: false, retryAfter: Math.ceil((bucket.resetAt - now) / 1000) };
+  }
+  return { allowed: true };
+}
+
 async function scrapeDepartures(stop) {
   const { data } = await axios.get(stopUrl(stop.id), {
     timeout: UPSTREAM_TIMEOUT_MS,
@@ -88,6 +134,18 @@ async function scrapeDepartures(stop) {
 }
 
 export default async function handler(req, res) {
+  let rate;
+  try {
+    rate = await checkRateLimit(clientIp(req));
+  } catch (err) {
+    console.error('Rate limit check failed', err);
+    rate = { allowed: true }; // fail open
+  }
+  if (!rate.allowed) {
+    res.setHeader('Retry-After', String(rate.retryAfter));
+    return res.status(429).json({ error: 'Too many requests' });
+  }
+
   const stopId = req.query.stopId || STOPS[0].id;
   const stop = findStop(stopId);
 
