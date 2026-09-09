@@ -47,9 +47,13 @@ REDIS_URL=redis://127.0.0.1:6379 npm run dev
 
 ## Deployment
 
-Deployed on Vercel. `vercel.json` builds the static site to `dist/` and runs
-`api/**/*.js` as Node functions. Set `REDIS_URL` in the Vercel project env for
-shared caching across function invocations.
+Deployed on Vercel with zero-config detection – the Vite build is served as a
+static site and each file in `api/` becomes a Serverless Function. `vercel.json`
+pins the function region (`lhr1`), rewrites unknown non-`/api` paths to
+`index.html` for client-side routing, and sets a long-lived immutable
+`Cache-Control` on the content-hashed `assets/` files. Set `REDIS_URL` in the
+Vercel project env for caching and rate-limit state shared across function
+invocations.
 
 ## Notes
 
